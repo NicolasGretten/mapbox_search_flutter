@@ -12,6 +12,8 @@ class MapBoxPlaceSearchWidget extends StatefulWidget {
     this.popOnSelect = false,
     this.location,
     this.country,
+    this.icon,
+    this.onIconTapped,
   });
 
   /// True if there is different search screen and you want to pop screen on select
@@ -46,6 +48,9 @@ class MapBoxPlaceSearchWidget extends StatefulWidget {
   ///Font Size
   final String fontSize;
 
+  final Icon icon; //By R
+  final void Function(String place) onIconTapped; //By R
+
   @override
   _MapBoxPlaceSearchWidgetState createState() =>
       _MapBoxPlaceSearchWidgetState();
@@ -73,10 +78,10 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     _containerHeight = Tween<double>(
-            begin: 73,
-            end: widget.height ??
-                MediaQuery.of(widget.context).size.height - 60 ??
-                300)
+        begin: 48,//By R
+        end: widget.height ??
+            MediaQuery.of(widget.context).size.height - 60 ??
+            300)
         .animate(
       CurvedAnimation(
         curve: Interval(0.0, 0.5, curve: Curves.easeInOut),
@@ -104,12 +109,12 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: EdgeInsets.symmetric(horizontal: 5),
-        width: MediaQuery.of(context).size.width,
-        child: _searchContainer(
-          child: _searchInput(context),
-        ),
-      );
+    // padding: EdgeInsets.symmetric(horizontal: 5),//By R
+    width: MediaQuery.of(context).size.width,
+    child: _searchContainer(
+      child: _searchInput(context),
+    ),
+  );
 
   // Widgets
   Widget _searchContainer({Widget child}) {
@@ -119,15 +124,16 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
           return Container(
             height: _containerHeight.value,
             decoration: _containerDecoration(),
-            padding: EdgeInsets.only(left: 0, right: 0, top: 15),
+            // padding: EdgeInsets.only(left: 0, right: 0, top: 15),//By R
             alignment: Alignment.center,
             child: Column(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: child,
-                ),
-                SizedBox(height: 10),
+                child, //By R
+                // Padding(//By R
+                //   padding: const EdgeInsets.symmetric(horizontal: 12.0),//By R
+                //   child: child,//By R
+                // ),//By R
+                // SizedBox(height: 10),//By R
                 Expanded(
                   child: Opacity(
                     opacity: _listOpacity.value,
@@ -151,19 +157,20 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
     return Center(
       child: Row(
         children: <Widget>[
+          Container(width: 15),//By R
           Expanded(
             child: TextField(
               decoration: _inputStyle(),
               controller: _textEditingController,
               style: TextStyle(
                 fontSize:
-                    widget.fontSize ?? MediaQuery.of(context).size.width * 0.04,
+                widget.fontSize ?? MediaQuery.of(context).size.width * 0.04,
               ),
               onChanged: (value) async {
                 _debounceTimer?.cancel();
                 _debounceTimer = Timer(
                   Duration(milliseconds: 750),
-                  () async {
+                      () async {
                     await _autocompletePlace(value);
                     if (mounted) {
                       setState(() {});
@@ -175,9 +182,20 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
           ),
           Container(width: 15),
           GestureDetector(
-            child: Icon(Icons.search, color: Colors.blue),
-            onTap: () {},
-          )
+            child: widget.icon,//By R
+            onTap: () async{//By R
+              widget.onIconTapped(_textEditingController.text);//By R
+              // Makes animation//By R
+              await _animationController.animateTo(0.5);//By R
+              setState(() {//By R
+                _placePredictions = [];//By R
+                // _selectedPlace = prediction;//By R
+              });//By R
+              _animationController.reverse();//By R
+              if (widget.popOnSelect) Navigator.pop(context);//By R
+            },//By R
+          ),
+          Container(width: 15),//By R
         ],
       ),
     );
@@ -224,7 +242,7 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
   BoxDecoration _containerDecoration() {
     return BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.all(Radius.circular(6.0)),
+      borderRadius: BorderRadius.all(Radius.circular(8.0)), //By R//Original 6.0
       boxShadow: [
         BoxShadow(color: Colors.black, blurRadius: 0, spreadRadius: 0)
       ],
