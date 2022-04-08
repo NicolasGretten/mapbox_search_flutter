@@ -181,20 +181,29 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
             ),
           ),
           Container(width: 15),
-          GestureDetector(
-            child: widget.icon,//By R
-            onTap: () async{//By R
-              widget.onIconTapped(_textEditingController.text);//By R
-              // Makes animation//By R
-              await _animationController.animateTo(0.5);//By R
-              setState(() {//By R
-                _placePredictions = [];//By R
-                // _selectedPlace = prediction;//By R
-              });//By R
-              _animationController.reverse();//By R
-              if (widget.popOnSelect) Navigator.pop(context);//By R
-            },//By R
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            color: Colors.black,
+            icon: widget.icon,
+            onPressed: () async {
+              widget.onIconTapped(_textEditingController.text);
+            },
           ),
+          // GestureDetector(
+          //   child: widget.icon,//By R
+          //   onTap: () async{//By R
+          //     widget.onIconTapped(_textEditingController.text);//By R
+          //     // Makes animation//By R
+          //     await _animationController.animateTo(0.5);//By R
+          //     setState(() {//By R
+          //       _placePredictions = [];//By R
+          //       // _selectedPlace = prediction;//By R
+          //     });//By R
+          //     _animationController.reverse();//By R
+          //     if (widget.popOnSelect) Navigator.pop(context);//By R
+          //   },//By R
+          // ),
           Container(width: 15),//By R
         ],
       ),
