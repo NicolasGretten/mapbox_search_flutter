@@ -14,6 +14,7 @@ class MapBoxPlaceSearchWidget extends StatefulWidget {
     this.country,
     this.icon,
     this.onIconTapped,
+    this.onInputTapped,
   });
 
   /// True if there is different search screen and you want to pop screen on select
@@ -50,6 +51,8 @@ class MapBoxPlaceSearchWidget extends StatefulWidget {
 
   final Icon icon; //By R
   final void Function(String place) onIconTapped; //By R
+
+  final void Function() onInputTapped; //By Nicolas
 
   @override
   _MapBoxPlaceSearchWidgetState createState() =>
@@ -160,6 +163,9 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
           Container(width: 15),//By R
           Expanded(
             child: TextField(
+              onTap: () async {
+                widget.onInputTapped();
+              },
               decoration: _inputStyle(),
               controller: _textEditingController,
               style: TextStyle(
