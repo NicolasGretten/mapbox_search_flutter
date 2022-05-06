@@ -76,6 +76,14 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
 
   Timer _debounceTimer;
 
+  static const List<String> _kOptions = <String>[
+    'aardvark',
+    'bobcat',
+    'chameleon',
+  ];
+
+  final ValueNotifier<double> optionsViewWidthNotifier = ValueNotifier(null);
+
   @override
   void initState() {
     _animationController =
@@ -121,39 +129,116 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
 
   // Widgets
   Widget _searchContainer({Widget child}) {
-    return AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, _) {
-          return Container(
-            height: _containerHeight.value,
-            decoration: _containerDecoration(),
-            // padding: EdgeInsets.only(left: 0, right: 0, top: 15),//By R
-            alignment: Alignment.center,
-            child: Column(
-              children: <Widget>[
-                child, //By R
-                // Padding(//By R
-                //   padding: const EdgeInsets.symmetric(horizontal: 12.0),//By R
-                //   child: child,//By R
-                // ),//By R
-                // SizedBox(height: 10),//By R
-                Expanded(
-                  child: Opacity(
-                    opacity: _listOpacity.value,
-                    child: ListView(
-                      // addSemanticIndexes: true,
-                      // itemExtent: 10,
-                      children: <Widget>[
-                        for (var places in _placePredictions)
-                          _placeOption(places),
-                      ],
+    // return AnimatedBuilder(
+    //     animation: _animationController,
+    //     builder: (context, _) {
+    //       return Container(
+    //         height: _containerHeight.value,
+    //         decoration: _containerDecoration(),
+    //         // padding: EdgeInsets.only(left: 0, right: 0, top: 15),//By R
+    //         alignment: Alignment.center,
+    //         child: Column(
+    //           children: <Widget>[
+    //             child, //By R
+    //             // Padding(//By R
+    //             //   padding: const EdgeInsets.symmetric(horizontal: 12.0),//By R
+    //             //   child: child,//By R
+    //             // ),//By R
+    //             // SizedBox(height: 10),//By R
+    //             Expanded(
+    //               child: Opacity(
+    //                 opacity: _listOpacity.value,
+    //                 child: ListView(
+    //                   // addSemanticIndexes: true,
+    //                   // itemExtent: 10,
+    //                   children: <Widget>[
+    //                     for (var places in _placePredictions)
+    //                       _placeOption(places),
+    //                   ],
+    //                 ),
+    //               ),
+    //             ),
+    //           ],
+    //         ),
+    //       );
+    //     });
+    return Autocomplete<MapBoxPlace>(
+      optionsBuilder: (_textEditingController) {
+        if (_textEditingController.text == '') {
+          return const Iterable<MapBoxPlace>.empty();
+        }
+        return _placePredictions.where((MapBoxPlace option) {
+          print(option);
+          return option.text.contains(_textEditingController.text.toLowerCase());
+        });
+      },
+      optionsViewBuilder: (BuildContext context,
+          AutocompleteOnSelected<MapBoxPlace> onSelected, Iterable<MapBoxPlace> options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4.0,
+            child: SizedBox(
+              height: 200.0,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(8.0),
+                itemCount: options.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final MapBoxPlace option = options.elementAt(index);
+                  return GestureDetector(
+                    onTap: () {
+                      _selectPlace(option);
+                      onSelected(option);
+                    },
+                    child: ListTile(
+                      title: Text(option.text),
                     ),
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
+          ),
+        );
+      },
+      fieldViewBuilder: (BuildContext context,
+          _textEditingController,
+          FocusNode focusNode,
+          VoidCallback onFieldSubmitted) {
+        return OrientationBuilder(builder: (context, orientation) {
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            optionsViewWidthNotifier.value =
+                (context.findRenderObject() as RenderBox).size.width;
+          });
+          return TextFormField(
+            controller: _textEditingController,
+            focusNode: focusNode,
+            onFieldSubmitted: (String value) {
+              onFieldSubmitted();
+            },
+            onTap: () async {
+              widget.onInputTapped();
+            },
+            decoration: _inputStyle(),
+            style: TextStyle(
+              fontSize:
+              widget.fontSize ?? MediaQuery.of(context).size.width * 0.04,
+            ),
+            onChanged: (value) async {
+              _debounceTimer?.cancel();
+              _debounceTimer = Timer(
+                Duration(milliseconds: 750),
+                    () async {
+                  await _autocompletePlace(value);
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+              );
+            },
           );
         });
+      },
+    );
   }
 
   Widget _searchInput(BuildContext context) {
