@@ -194,6 +194,7 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
             icon: widget.icon,
             onPressed: () async {
               widget.onIconTapped(_textEditingController.text);
+              _textEditingController.clear();
             },
           ),
           // GestureDetector(
