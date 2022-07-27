@@ -82,9 +82,7 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
         AnimationController(vsync: this, duration: Duration(milliseconds: 500));
     _containerHeight = Tween<double>(
         begin: 48,//By R
-        end: widget.height ??
-            MediaQuery.of(widget.context).size.height - 60 ??
-            300)
+        end: 250)
         .animate(
       CurvedAnimation(
         curve: Interval(0.0, 0.5, curve: Curves.easeInOut),
@@ -296,12 +294,6 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
   void _selectPlace(MapBoxPlace prediction) async {
     /// Will be called when a user selects one of the Place options.
 
-    // Sets TextField value to be the location selected
-    _textEditingController.value = TextEditingValue(
-      text: prediction.placeName,
-      selection: TextSelection.collapsed(offset: prediction.placeName.length),
-    );
-
     // Makes animation
     await _animationController.animateTo(0.5);
     setState(() {
@@ -309,6 +301,12 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
       // _selectedPlace = prediction;
     });
     _animationController.reverse();
+
+    // Sets TextField value to be the location selected
+    _textEditingController.value = TextEditingValue(
+      text: prediction.placeName,
+      selection: TextSelection.collapsed(offset: prediction.placeName.length),
+    );
 
     // Calls the `onSelected` callback
     widget.onSelected(prediction);
