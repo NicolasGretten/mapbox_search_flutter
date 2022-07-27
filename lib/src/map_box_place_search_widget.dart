@@ -294,6 +294,8 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
   void _selectPlace(MapBoxPlace prediction) async {
     /// Will be called when a user selects one of the Place options.
 
+    FocusManager.instance.primaryFocus?.unfocus();
+
     // Makes animation
     await _animationController.animateTo(0.5);
     setState(() {
