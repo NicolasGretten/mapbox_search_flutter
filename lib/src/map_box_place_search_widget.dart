@@ -191,8 +191,8 @@ class _MapBoxPlaceSearchWidgetState extends State<MapBoxPlaceSearchWidget>
             color: Colors.black,
             icon: widget.icon,
             onPressed: () async {
-              widget.onIconTapped(_textEditingController.text);
               _textEditingController.clear();
+              widget.onIconTapped(_textEditingController.text);
             },
           ),
           // GestureDetector(
